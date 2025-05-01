@@ -1,26 +1,26 @@
 const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const authRoutes = require("./routes/auth.route");
-const seatRoute = require("./routes/seatInit.route");
-const bookingRoute = require("./routes/booking.route");
 require("dotenv").config();
+var cors = require("cors");
+const connectToDB = require("./config/db.mongo");
+const UserRouter = require("./routes/user.route");
+const TicketBookingRouter = require("./routes/ticketBooking.route");
 
-const PORT = process.env.PORT;
-const MONGO_URI = process.env.MONGO_URI;
 const app = express();
-
-app.use(cors());
 app.use(express.json());
+app.use(cors());
 
-app.use("/api/auth",authRoutes );        
-app.use("/api/seat", seatRoute);     
-app.use("/api/booking", bookingRoute);
+const PORT = process.env.PORT || 8000
 
-mongoose.connect(MONGO_URI).then(() => {
-    console.log("Connected to MongoDB");
-}).catch((err) => {
-    console.error("MongoDB connection error:", err);
+
+app.use("/users", UserRouter);
+app.use("/bookTicket", TicketBookingRouter)
+
+
+app.use((req, res) => {
+    res.status(404).json({msg:"Request Not Found"})
+})
+
+app.listen(PORT, () => {
+    connectToDB();
+    console.log(`Server Started at ${PORT}`);
 });
-
-app.listen(PORT, () => console.log("Server running on port 8000"));
